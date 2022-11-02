@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/Squads-Protocol/based-cli/compare/v1.0.4...v1.0.5) (2022-11-02)
+
+
+### Bug Fixes
+
+* **vault:** formatting ([64d9e44](https://github.com/Squads-Protocol/based-cli/commit/64d9e44d5ea654a33e24ed12d7c98a944dafd6b7))
+
 ## [1.0.4](https://github.com/Squads-Protocol/based-cli/compare/v1.0.3...v1.0.4) (2022-11-02)
 
 
