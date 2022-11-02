@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/Squads-Protocol/based-cli/compare/v1.0.3...v1.0.4) (2022-11-02)
+
+
+### Bug Fixes
+
+* **fund:** set commitment on initial funding ([6db7e4d](https://github.com/Squads-Protocol/based-cli/commit/6db7e4d0a4c2e79d1ad5ccf6e12ddaf9cfec274a))
+
 ## [1.0.3](https://github.com/Squads-Protocol/based-cli/compare/v1.0.2...v1.0.3) (2022-11-02)
 
 
