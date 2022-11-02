@@ -4,7 +4,7 @@ import * as anchor from "@project-serum/anchor";
 import BN from "bn.js";
 import { getProgramData, upgradeSetAuthorityIx } from "./program.js";
 import { getAssets } from "./assets.js";
-import { getOrCreateAssociatedTokenAccount} from "@solana/spl-token";
+import { getOrCreateAssociatedTokenAccount, createAssociatedTokenAccountInstruction, getAssociatedTokenAddress} from "@solana/spl-token";
 import {BASED_PROGRAM_ID} from "./constants.js";
 import idl from "../../squads_mpl.json" assert {type: "json"};
 
@@ -216,8 +216,21 @@ class API{
         return getAssets(this.connection, vaultPDA);
     }
 
-    createATA(mint, owner){
-        return getOrCreateAssociatedTokenAccount(this.connection, this.wallet, mint, owner, true);
+    async createATA(mint, owner){
+        const ataPubkey = await getAssociatedTokenAddress(mint,owner,true)
+        const createATAIx = await createAssociatedTokenAccountInstruction(
+            this.wallet.publicKey,
+            ataPubkey,
+            owner,
+            mint
+        );
+
+        const {blockhash, lastValidBlockHeight} = await this.connection.getLatestBlockhash();
+        let tx = new anchor.web3.Transaction({blockhash, lastValidBlockHeight, feePayer: this.wallet.publicKey});
+        tx.add(createATAIx);
+        tx = await this.wallet.signTransaction(tx);
+        const sig = await this.connection.sendRawTransaction(tx.serialize(), {skipPreflight: true});
+        return ataPubkey;
     }
 }
 
