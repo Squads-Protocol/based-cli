@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.6](https://github.com/Squads-Protocol/based-cli/compare/v1.0.5...v1.0.6) (2022-11-02)
+
+
+### Bug Fixes
+
+* **keywords:** added keywords to package.json ([a694d30](https://github.com/Squads-Protocol/based-cli/commit/a694d300790a2aa7fc97bc3c836b25e5a6687e19))
+
 ## [1.0.5](https://github.com/Squads-Protocol/based-cli/compare/v1.0.4...v1.0.5) (2022-11-02)
 
 
