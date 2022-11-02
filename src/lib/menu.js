@@ -450,10 +450,22 @@ class Menu{
         this.header();
         const choices = ms.keys.map(k => k.toBase58());
         choices.push("<- Go back");
-        const {threshold} = await inquirer.prompt({default: "", name: 'threshold', type: 'input', message: `Enter the new proposed threshold`});
+        const {threshold} = await inquirer.prompt({
+            default: "",
+            name: 'threshold',
+            type: 'input',
+            message: `Enter the new proposed threshold`,
+            validate: (t) => {
+                if (parseInt(t,10)>ms.keys.length){
+                    return "Threshold cannot be greater than the number of members";
+                }else{
+                    return true;
+                }
+            }
+        });
         if (threshold === "") {
             this.settings(ms);
-        }else {            
+        }else {
             const {yes} = await basicConfirm(`Create transaction to change threshold to ${threshold}?`, false);
             if (yes) {
                 const status = new Spinner("Creating Change Threshold Transaction...");
