@@ -1,3 +1,5 @@
+## Squads Based CLI
+
 ```
    _____   ____    __  __    ___     ____    _____
   / ___/  / __ \  / / / /   /   |   / __ \  / ___/
@@ -7,7 +9,6 @@
                                                   
 ```
 
-## Squads CLI
 Interact with the Squads Multisig Program through a simple CLI.\
 The CLI program runs against the Solana program at [BASEDWVF6xeXTJSrk99cbMCwGFtaUvFLihpg6ki9UWX3](https://explorer.solana.com/address/BASEDWVF6xeXTJSrk99cbMCwGFtaUvFLihpg6ki9UWX3)
 ### Requirements
