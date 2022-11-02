@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/Squads-Protocol/based-cli/compare/v1.0.1...v1.0.2) (2022-11-02)
+
+
+### Bug Fixes
+
+* **meta:** updated license and readme ([a183675](https://github.com/Squads-Protocol/based-cli/commit/a183675c257ae8534a62b50708882c7be500b177))
+
 ## [1.0.1](https://github.com/Squads-Protocol/based-cli/compare/v1.0.0...v1.0.1) (2022-11-02)
 
 
