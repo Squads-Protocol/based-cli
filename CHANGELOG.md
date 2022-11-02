@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Squads-Protocol/based-cli/compare/v1.0.0...v1.0.1) (2022-11-02)
+
+
+### Bug Fixes
+
+* **package:** added repo link to package.json ([3a8450d](https://github.com/Squads-Protocol/based-cli/commit/3a8450d1f7fc79e13f235feca6abe2637c04885f))
+
 ## 1.0.0 (2022-11-02)
 
 
