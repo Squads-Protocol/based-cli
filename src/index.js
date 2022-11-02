@@ -39,7 +39,7 @@ const option = process.argv[2];
 switch(option){
     case "-v":
         clear();
-        console.log("Squads CLI version: " + pjson.version);
+        console.log("Squads Based CLI version: " + pjson.version);
         break;
     
     case "-h":
