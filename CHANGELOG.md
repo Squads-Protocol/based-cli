@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.7](https://github.com/Squads-Protocol/based-cli/compare/v1.0.6...v1.0.7) (2022-11-02)
+
+
+### Bug Fixes
+
+* **menu:** removed multisig address ([c8f4b1b](https://github.com/Squads-Protocol/based-cli/commit/c8f4b1be191b85e230c577f76e63bebcaae867fd))
+
 ## [1.0.6](https://github.com/Squads-Protocol/based-cli/compare/v1.0.5...v1.0.6) (2022-11-02)
 
 
