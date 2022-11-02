@@ -77,7 +77,7 @@ class API{
             });
             fundTx.add(fundIx);
             const signedTx = await this.wallet.signTransaction(fundTx);
-            await this.connection.sendRawTransaction(signedTx.serialize(), {skipPreflight: true});
+            await this.connection.sendRawTransaction(signedTx.serialize(), {skipPreflight: true, commitment: "confirmed"});
         }catch (e){
             // couldn't fund
         }
