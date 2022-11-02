@@ -9,6 +9,12 @@
     "type": "git",
     "url": "https://github.com/squads-protocol/based-cli"
   },
+  "keywords": [
+    "solana",
+    "multisig",
+    "cli",
+    "smart contract"
+  ],
   "main": "index.js",
   "author": "",
   "license": "ISC",
