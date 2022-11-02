@@ -28,6 +28,7 @@ Providing the cluster will bypass the question upon startup\
 There are 2 ways to create multisig transactions
 1. Using a base58 encoded serialization of the Transaction message
 2. Creating a raw draft, and adding each instruction individually
+
 It is important to note, that the signer of any multisig transaction for proper execution must be the relevant authority. For most cases, this will be the vault address that is show from
 the vault menu, and will usually default to the authority index of 1 when creating a transaction draft (unless otherwise specified).
 
