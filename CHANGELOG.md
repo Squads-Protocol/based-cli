@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.3](https://github.com/Squads-Protocol/based-cli/compare/v1.0.2...v1.0.3) (2022-11-02)
+
+
+### Bug Fixes
+
+* **ata:** ata creation ([06007ee](https://github.com/Squads-Protocol/based-cli/commit/06007ee0ca0e25a3ffe60bd7e3ae2b2994e8eceb))
+* **menu:** enter to go back on ata ([1e312c2](https://github.com/Squads-Protocol/based-cli/commit/1e312c2b673e302f8a738542d2133bb003bea843))
+* **readme:** added instruction notes ([d17089d](https://github.com/Squads-Protocol/based-cli/commit/d17089dcbeb8f7a061f565e0423ea16c92ba4b0c))
+* **readme:** formatting ([4325bba](https://github.com/Squads-Protocol/based-cli/commit/4325bba8d1af19f5d31636dc5dca4eeee8de8825))
+* **threshold:** limit threshold to keys length ([eda8270](https://github.com/Squads-Protocol/based-cli/commit/eda82704e4189348a704ef57ad6bc301c13a0442))
+
 ## [1.0.2](https://github.com/Squads-Protocol/based-cli/compare/v1.0.1...v1.0.2) (2022-11-02)
 
 
