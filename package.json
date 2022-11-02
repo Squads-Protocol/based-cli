@@ -2,10 +2,10 @@
   "name": "@sqds/based",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "main": "index.js",
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -34,11 +34,15 @@
     "touch": "^3.1.0"
   },
   "bin": {
-    "squads-based": "./index.js"
+    "squads-based": "./src/index.js"
   },
   "type": "module",
   "engines": {
     "npm": ">=8.19.2",
     "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "webpack": "^4.28.3",
+    "webpack-cli": "^4.10.0"
   }
 }

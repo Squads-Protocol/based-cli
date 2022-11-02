@@ -8,7 +8,8 @@
 ```
 
 ## Squads CLI
-Interact with the Squads Multisig Program through a simple CLI.
+Interact with the Squads Multisig Program through a simple CLI.\
+The CLI program runs against the Solana program at [BASEDWVF6xeXTJSrk99cbMCwGFtaUvFLihpg6ki9UWX3](https://explorer.solana.com/address/BASEDWVF6xeXTJSrk99cbMCwGFtaUvFLihpg6ki9UWX3)
 ### Requirements
 Nodejs version >= 16
 ### Installing the CLI tool

@@ -6,7 +6,7 @@ import { getProgramData, upgradeSetAuthorityIx } from "./program.js";
 import { getAssets } from "./assets.js";
 import { getOrCreateAssociatedTokenAccount} from "@solana/spl-token";
 import {BASED_PROGRAM_ID} from "./constants.js";
-import idl from "../squads_mpl.json" assert {type: "json"};
+import idl from "../../squads_mpl.json" assert {type: "json"};
 
 const Squads = SquadsSdk.default;
 const getTxPDA = SquadsSdk.getTxPDA;
@@ -200,7 +200,7 @@ class API{
     }
 
     addInstruction(txPDA, ix) {
-        const txIx = new TransactionInstruction({
+        const txIx = new anchor.web3.TransactionInstruction({
             keys: ix.keys,
             programId: ix.programId,
             data: ix.data

@@ -7,7 +7,7 @@ import CliWallet from './lib/wallet.js';
 import CliConnection from "./lib/connection.js";
 import SetupWallet from "./lib/inq/walletPath.js";
 import SetupCluster from "./lib/inq/cluster.js";
-import pjson from './package.json' assert {type: 'json'};
+import pjson from '../package.json' assert {type: 'json'};
 
 // console.log(pjson.version);
 const load = async (initCluster = null) => {

@@ -18,6 +18,7 @@ import {
     createMultisigConfirmInq,
     createTransactionInq,
     addInstructionInq,
+    addTransactionInq,
     promptProgramId,
     transactionPrompt,
     basicConfirm,
@@ -137,22 +138,85 @@ class Menu{
     };
 
     createTransaction = async (ms) => {
-        const {authority} = await createTransactionInq();
-        const authorityBN = new BN(authority, 10);
-        const [authorityPDA] = await getAuthorityPDA(ms.publicKey, authorityBN, this.api.programId);
-        const status = new Spinner("Creating transaction...");
-        console.log("This will create a new transaction draft for authority " + chalk.blue(authorityPDA.toBase58()));
-        const {yes} = await basicConfirm("Continue?", false);
-        if (yes){
-            status.start();
-            const tx = await this.api.createTransaction(ms.publicKey, parseInt(authority,10));
-            status.stop();
-            console.log("Transaction created!");
-            console.log("Transaction key: " + chalk.blue(tx.publicKey.toBase58()));
-            await continueInq();
-            const txs = await this.api.getTransactions(ms);
-            this.transactions(txs, ms);
-        }else {
+        const {assemble} = await inquirer.prompt({
+            default: "",
+            name: 'assemble',
+            type: 'list',
+            choices: ["Enter Transaction (base58 serialized message)", "Assemble Transaction (create draft)", "<- Go back"],
+            message: 'How do you want to create the transaction?',
+        });
+
+        if(assemble.indexOf("Assemble") == 0){
+            const {authority} = await createTransactionInq();
+            const authorityBN = new BN(authority, 10);
+            const [authorityPDA] = await getAuthorityPDA(ms.publicKey, authorityBN, this.api.programId);
+
+            const status = new Spinner("Creating transaction...");
+            console.log("This will create a new transaction draft for authority " + chalk.blue(authorityPDA.toBase58()));
+            const {yes} = await basicConfirm("Continue?", false);
+            if (yes){
+                status.start();
+                const tx = await this.api.createTransaction(ms.publicKey, parseInt(authority,10));
+                status.stop();
+                console.log("Transaction created!");
+                console.log("Transaction key: " + chalk.blue(tx.publicKey.toBase58()));
+                await continueInq();
+                const txs = await this.api.getTransactions(ms);
+                this.transactions(txs, ms);
+            }else {
+                this.multisig(ms);
+            }
+        }else if(assemble.indexOf("Enter") == 0) {
+            const {authority} = await createTransactionInq();
+            const authorityBN = new BN(authority, 10);
+            const [authorityPDA] = await getAuthorityPDA(ms.publicKey, authorityBN, this.api.programId);
+
+            const {rawIx} = await addTransactionInq();
+            if (rawIx.length > 1) {
+                const status = new Spinner("Creating transaction...");
+                const status2 = new Spinner(`Adding instruction...`);
+                try {
+                    const txBuffer = anchor.utils.bytes.bs58.decode(rawIx);
+                    clear();
+                    this.header();
+                    const rawTxMessage = anchor.web3.Message.from(txBuffer);
+                    const tx = anchor.web3.Transaction.populate(rawTxMessage);
+                    const ixes = tx.instructions;
+                    console.log("This will create a new multisig transaction for authority/signer " + chalk.blue(authorityPDA.toBase58()));
+                    const {yes} = await basicConfirm(`Create a transaction with ${ixes.length} instructions?`, false);
+                    if (yes) {
+                        
+                        status.start();
+                        const tx = await this.api.createTransaction(ms.publicKey, parseInt(authority, 10));
+                        status.stop();
+                        console.log(`Transaction ${tx.publicKey.toBase58()} created!`);
+                        // add instructions to transaction
+                        for (let i = 0; i < ixes.length; i++) {
+                            console.log(`attaching instruction ${i + 1}/${ixes.length}`);
+                            status2.start();
+                            const ix = ixes[i];
+                            await this.api.addInstruction(tx.publicKey, ix);
+                            status2.stop();
+                        }
+                        console.log("Transaction created!");
+                        // console.log("Transaction key: " + chalk.blue(tx.publicKey.toBase58()));
+                        await continueInq();
+                        const txs = await this.api.getTransactions(ms);
+                        this.transactions(txs, ms);
+                    }else{
+                        this.multisig(ms);
+                    }
+                }catch (e) {
+                    console.log("Error", e);
+                    status.stop();
+                    status2.stop();
+                    await continueInq();
+                    this.multisig(ms);
+                }
+            }else{
+                this.multisig(ms);
+            }
+        }else{
             this.multisig(ms);
         }
     };
@@ -170,6 +234,9 @@ class Menu{
             }
         ];
         console.table(txData);
+        if(tx.status.active){
+            console.log(chalk.red("Be sure to review all transaction instructions before approving or executing!"));
+        }
         console.log("View on the web:");
         console.log(chalk.yellow("https://explorer.solana.com/address/" + tx.publicKey.toBase58()));
         console.log("");
@@ -182,11 +249,20 @@ class Menu{
             if (yes) {
                 const status = new Spinner("Approving transaction...");
                 status.start();
-                const updatedTx = await this.api.approveTransaction(tx.publicKey);
-                status.stop();
-                const newInd = txs.findIndex(t => t.publicKey.toBase58() === updatedTx.publicKey.toBase58());
-                txs.splice(newInd, 1, updatedTx);
-                this.transaction(updatedTx, ms, txs);
+                try {
+                    const updatedTx = await this.api.approveTransaction(tx.publicKey);
+                    status.stop();
+                    const newInd = txs.findIndex(t => t.publicKey.toBase58() === updatedTx.publicKey.toBase58());
+                    txs.splice(newInd, 1, updatedTx);
+                    console.log("Transaction approved");
+                    await continueInq();
+                    this.transaction(updatedTx, ms, txs);
+                }catch(e){
+                    status.stop();
+                    console.log("Error!", e);
+                    await continueInq();
+                    this.transaction(tx, ms, txs);
+                }
             }else{
                 this.transaction(tx, ms, txs);
             }        
@@ -200,11 +276,14 @@ class Menu{
                     status.stop();
                     const newInd = txs.findIndex(t => t.publicKey.toBase58() === updatedTx.publicKey.toBase58());
                     txs.splice(newInd, 1, updatedTx);
+                    console.log("Transaction executed");
+                    await continueInq();
                     this.transaction(updatedTx, ms, txs);
                 }catch(e){
                     status.stop();
-                    await inquirer.prompt({default: "", name: 'action', type: 'input', message: `Execute failed... Enter to continue`});
                     console.log(e.message);
+                    await continueInq();
+                    this.transaction(tx, ms, txs);
                 }                
 
             }else{
@@ -236,8 +315,10 @@ class Menu{
                         console.log("Instruction added!");
                         await continueInq();
                     }catch(e){
-                        console.log(e);
                         status.stop();
+                        console.log(e);
+                        await continueInq();
+                        this.transaction(tx, ms, txs);
                     }
                     this.transaction(newTx, ms, txs);
                 }
@@ -250,11 +331,20 @@ class Menu{
             if (yes) {
                 const status = new Spinner("Activating transaction...");
                 status.start();
-                const updatedTx = await this.api.activate(tx.publicKey);
-                status.stop();
-                const newInd = txs.findIndex(t => t.publicKey.toBase58() === updatedTx.publicKey.toBase58());
-                txs.splice(newInd, 1, updatedTx);
-                this.transaction(updatedTx, ms, txs);
+                try {
+                    const updatedTx = await this.api.activate(tx.publicKey);
+                    status.stop();
+                    const newInd = txs.findIndex(t => t.publicKey.toBase58() === updatedTx.publicKey.toBase58());
+                    txs.splice(newInd, 1, updatedTx);
+                    console.log("Activated Transaction");
+                    await continueInq();
+                    this.transaction(updatedTx, ms, txs);
+                }catch(e){
+                    status.stop();
+                    console.log("Error!", e);
+                    await continueInq();
+                    this.transaction(tx, ms, txs);
+                }
             }else{
                 this.transaction(tx, ms, txs);
             }
