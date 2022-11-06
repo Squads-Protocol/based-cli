@@ -31,6 +31,8 @@ import API from "./api.js";
 import { getAuthorityPDA } from '@sqds/sdk';
 import { BN } from 'bn.js';
 import { PublicKey } from '@solana/web3.js';
+import { shortenTextEnd } from './utils.js';
+import { BASED_PROGRAM_ID } from './constants.js';
 
 const Spinner = CLI.Spinner;
 class Menu{
@@ -67,21 +69,40 @@ class Menu{
     }
 
     multisigList = async () => {
+        const loadAuthorities = async (ms) => {
+            return Promise.all(ms.map(async (msObj,i) => {
+                const [mAuth] = await getAuthorityPDA(msObj.publicKey, new BN(1), new PublicKey(BASED_PROGRAM_ID));
+                return {
+                    value: i,
+                    name: `${mAuth.toBase58()} (${shortenTextEnd(msObj.publicKey.toBase58(),6)})`,
+                    short: shortenTextEnd(mAuth.toBase58(),6)
+                }
+            }));
+        }
         this.header();
         const spinner = new Spinner("Loading multisigs...");
         spinner.start();
-        this.multisigs = await this.api.getSquads(this.wallet.publicKey);
-        spinner.stop();
-        const testList = this.multisigs.map((m, i) => {
-            return m.publicKey.toBase58();
-        });
-        testList.push("<- Go back");
-        const {action} = await viewMultisigsMenu(testList);
-        if (action === "<- Go back") {
+        try {
+            this.multisigs = await this.api.getSquads(this.wallet.publicKey);
+            spinner.stop();
+            const testList = await loadAuthorities(this.multisigs); 
+
+            const dIndex = testList.length;
+            testList.push({name:"<- Go back", value: dIndex, short: "Go back"});
+
+            const {action} = await viewMultisigsMenu(testList, dIndex);
+            if (action === dIndex) {
+                this.top();
+            }else{
+                const chosenMultisig = this.multisigs[action];
+                this.multisig(chosenMultisig);
+            }
+        } catch (error) {
+            spinner.stop();
+            console.log(error);
+            console.log("Try restarting the cli using a different Solana cluster");
+            await continueInq();
             this.top();
-        }else{
-            const chosenMultisig = this.multisigs.find(m => m.publicKey.toBase58() === action);
-            this.multisig(chosenMultisig);
         }
     };
 

@@ -35,8 +35,10 @@ the vault menu, and will usually default to the authority index of 1 when creati
 If attaching an instruction to a draft, you'll need to add the data as a base58 encoded version of the data buffer.\
 Make sure that all instructions for any given transaction thats created for the multisig has the proper signer as the relevant authority. If there is an additional signer, it MUST be a member of the multisig and strictly the member that executes it, or else it will fail.
 
-### Notes
+### Important Notes
 If creating a multisig, it will automatically fund the default vault/authority with .001 SOL. This helps with certain clients that require destinations to have lamports in a system account.
+
+DO NOT use the multisig address to receive funds or act as an authority. Any treasury, vault, or authority based transactions should be associated with a proper authority address. In the context of this CLI tool, it will be shown as the default vault address in the vault or settings menu.
 
 ### Contributing
 Join the Squads discord at [discord.gg/tYpY9UfRFx](https://discord.gg/tYpY9UfRFx) or reach out to the team on Twitter at [@SquadsProtocol](https://twitter.com/SquadsProtocol) and ask how to be a contributor!
