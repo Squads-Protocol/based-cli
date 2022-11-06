@@ -29,8 +29,8 @@ const load = async (initCluster = null) => {
 
 const help = async () => {
     clear();
-    console.log("Squads CLI is in alpha, more commands and options are in progress.")
-    console.log("For more information, visit https://github.com/squads-protocol/squads-cli");
+    console.log("Squads Based CLI is in alpha, more commands and options are in progress.")
+    console.log("For more information, visit https://github.com/squads-protocol/based-cli");
 };
 
 // console.log(process.argv[2]);
