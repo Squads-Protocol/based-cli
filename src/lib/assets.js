@@ -14,8 +14,7 @@ export const getAssets = async (connection, userKey) => {
         programId: TOKEN_PROGRAM_ID,
     });
 
-    const solInfo = await connection.getBalance(userKey);
-
+    const solInfo = await connection.getBalance(userKey, "confirmed");
     const solModel = {
         amount: solInfo / LAMPORTS_PER_SOL,
         source: userKey.toBase58(),

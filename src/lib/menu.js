@@ -57,7 +57,7 @@ class Menu{
         this.api = new API(this.wallet, connection);
     }
 
-    header = async () => {
+    header = async (vault = null) => {
         clear();
         console.log(
             chalk.yellow(
@@ -65,13 +65,20 @@ class Menu{
             )
         );
         console.log( chalk.blue("Connected wallet: ") + chalk.white(this.wallet.publicKey.toBase58()));
+        if(vault){
+            try {
+                console.log( chalk.blue("Vault address: ") + chalk.white(vault.toBase58()));
+            }catch(e){
+                // bad vault obj
+            }
+        }
         console.log("");
     }
 
     multisigList = async () => {
         const loadAuthorities = async (ms) => {
             return Promise.all(ms.map(async (msObj,i) => {
-                const [mAuth] = await getAuthorityPDA(msObj.publicKey, new BN(1), new PublicKey(BASED_PROGRAM_ID));
+                const [mAuth] = await getAuthorityPDA(msObj.publicKey, new BN(1), this.api.programId);
                 return {
                     value: i,
                     name: `${mAuth.toBase58()} (${shortenTextEnd(msObj.publicKey.toBase58(),6)})`,
@@ -107,12 +114,13 @@ class Menu{
     };
 
     multisig = async (ms) => {
-        this.header();
-        console.table(ms.keys.map(m => {
-            return {
-                "Owner Keys": m.toBase58(),
-            }
-        }))
+        const [vault] = await getAuthorityPDA(ms.publicKey, new BN(1), this.api.programId);
+        this.header(vault);
+        console.log("Info");
+        console.log("-----------------------------------------------------------");
+        console.log("Multisig account: " + chalk.white(ms.publicKey.toBase58()));
+        console.log("(" + chalk.red("DO NOT") + " send assets to this address. Use ONLY vault address shown above)");
+        console.log(" ");
         const {action} = await multisigMainMenu(ms);
         if (action === "Vault") {
             // load vault assets
@@ -147,7 +155,8 @@ class Menu{
     };
 
     transactions = async (txs, ms) => {
-        this.header();
+        const [vault] = await getAuthorityPDA(ms.publicKey, new BN(1), this.api.programId);
+        this.header(vault);
         const {action} = await transactionsMenu(txs, this.wallet.publicKey);
         if(action === "<- Go back") {
             this.multisig(ms);
@@ -243,7 +252,8 @@ class Menu{
     };
 
     transaction = async (tx, ms, txs) => {
-        this.header();
+        const [vault] = await getAuthorityPDA(ms.publicKey, new BN(1), this.api.programId);
+        this.header(vault);
         const [authority] = await getAuthorityPDA(ms.publicKey, new BN(tx.authorityIndex,10), this.api.programId);
         const txData = [
             {
@@ -298,8 +308,9 @@ class Menu{
                     const newInd = txs.findIndex(t => t.publicKey.toBase58() === updatedTx.publicKey.toBase58());
                     txs.splice(newInd, 1, updatedTx);
                     console.log("Transaction executed");
+                    const updatedMs = await this.api.squads.getMultisig(ms.publicKey);
                     await continueInq();
-                    this.transaction(updatedTx, ms, txs);
+                    this.transaction(updatedTx, updatedMs, txs);
                 }catch(e){
                     status.stop();
                     console.log(e.message);
@@ -388,12 +399,16 @@ class Menu{
     }
 
     settings = async (ms) => {
-        this.header();
         const [vault] = await getAuthorityPDA(ms.publicKey, new BN(1,10), this.api.programId);
+        this.header(vault);
+        const owners = ms.keys.map(m => {
+            return  m.toBase58();
+        })
+        console.table([{"Owners": owners}]);
         console.table([{
             "Threshold": ms.threshold,
             "Members": ms.keys.length,
-            "Vault (Default Authority 1)": vault
+            "Vault (Default Authority 1)": vault,
         }]);
         const {action} = await multisigSettingsMenu();
         if (action === "Add a key") {
@@ -551,8 +566,8 @@ class Menu{
     }
 
     programAuthority = async (ms, currentAuthority, programId) => {
-        this.header();
         const [vault] = await getAuthorityPDA(ms.publicKey, new BN(1), this.api.programId);
+        this.header(vault);
         console.log(`This will create a safe upgrade authority transfer transaction of ${programId} to the Squad vault`);
         console.log("Program Address: " + chalk.blue(`${programId}`));
         console.log(`Multisig Address: ` + chalk.white(`${ms.publicKey.toBase58()}`));
@@ -614,8 +629,9 @@ class Menu{
                 status.stop();
                 console.log(`Created new multisig! (${ms.publicKey.toBase58()})`);
                 await continueInq();
-                const squads = await this.api.getSquads(this.wallet.publicKey);
-                this.multisigs = squads;
+                // const squads = await this.api.getSquads(this.wallet.publicKey);
+                // this.multisigs = squads;
+                this.multisigs.push(ms);
                 this.multisig(ms);
             }catch(e) {
                 status.stop();
@@ -631,8 +647,8 @@ class Menu{
 
     ata = async (ms) => {
         clear();
-        this.header();
         const [vault] = await getAuthorityPDA(ms.publicKey, new BN(1), this.api.programId);
+        this.header(vault);
         const ataKeys = await createATAInq(vault);
         if(ataKeys){
             const {yes} = await basicConfirm(`Create new ATA for mint ${ataKeys.mint} and owner ${ataKeys.owner} ?`);

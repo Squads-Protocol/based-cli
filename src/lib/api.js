@@ -20,12 +20,12 @@ class API{
     program;
     provider;
     constructor(wallet, connection){
-        this.squads = Squads.endpoint(connection.cluster, wallet, {multisigProgramId: new anchor.web3.PublicKey(BASED_PROGRAM_ID)});
+        this.squads = Squads.endpoint(connection.cluster, wallet, {commitmentOrConfig: "confirmed", multisigProgramId: new anchor.web3.PublicKey(BASED_PROGRAM_ID)});
         this.wallet = wallet;
         this.cluster = connection.cluster;
         this.connection = connection.connection;
         this.programId = new anchor.web3.PublicKey(BASED_PROGRAM_ID);
-        this.provider = new anchor.AnchorProvider(this.connection, this.wallet, {preflightCommitment: "processed", commitment: "confirmed"});
+        this.provider = new anchor.AnchorProvider(this.connection, this.wallet, {preflightCommitment: "confirmed", commitment: "confirmed"});
         this.program = new anchor.Program(idl, this.programId, this.provider);
     }
 
@@ -77,8 +77,11 @@ class API{
             });
             fundTx.add(fundIx);
             const signedTx = await this.wallet.signTransaction(fundTx);
-            await this.connection.sendRawTransaction(signedTx.serialize(), {skipPreflight: true, commitment: "confirmed"});
+            const sig =await this.connection.sendRawTransaction(signedTx.serialize(), {preflightCommitment: "confirmed",skipPreflight: true, commitment: "confirmed"});
+            await this.connection.confirmTransaction(sig, "confirmed");
         }catch (e){
+            console.log("Error funding vault", e);
+            throw new Error(e);
             // couldn't fund
         }
         return tx;
