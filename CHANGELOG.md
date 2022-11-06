@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.8](https://github.com/Squads-Protocol/based-cli/compare/v1.0.7...v1.0.8) (2022-11-06)
+
+
+### Bug Fixes
+
+* **list:** multisig list is the authority items ([17ac2c9](https://github.com/Squads-Protocol/based-cli/commit/17ac2c99b05d8b4292aada9f369a509a27a8eac2))
+
 ## [1.0.7](https://github.com/Squads-Protocol/based-cli/compare/v1.0.6...v1.0.7) (2022-11-02)
 
 
